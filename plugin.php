@@ -35,6 +35,7 @@ class Standard_Require_Login {
 
         // Add template redirect action.
         add_action( 'template_redirect', array( $this, 'standard_require_login_check' ) );
+        add_filter( 'redirect_user_to_login_screen', array( $this, 'is_user_not_logged_in' ), 10, 1 );
 
     } // end constructor
 
@@ -50,13 +51,23 @@ class Standard_Require_Login {
      */
     public function standard_require_login_check() {
 
-        // Check if user is not logged in.
-        if ( !is_user_logged_in() ) {
-            // Redirect them to the login page.
+        // Check if we should redirect to the login page.
+        if ( apply_filters( 'redirect_user_to_login_screen', true ) ) {
             auth_redirect();
         }
 
     } // end standard_require_login_check
+
+    /**
+     * Filtering function applied to `redirect_user_to_login_screen`.
+     *
+     * @param  boolean $require_login Whether login should be required on this page request.
+     * @return boolean                If user is not logged in, require login.
+     */
+    public function is_user_not_logged_in( $require_login ) {
+        $require_login = ! is_user_logged_in();
+        return $require_login;
+    }
 
 } // end class
 
